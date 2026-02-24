@@ -1,0 +1,59 @@
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title">All POS Machines</h1>
+    <p class="page-sub">Search and view all configured and deployed terminals</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">&#x2315;</span>
+      <input class="search-input" type="text" placeholder="Search by serial, merchant, model, or MID..."
+        [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}" (ngModelChange)="searchTerm.set($event)">
+    </div>
+    <div class="result-count">{{ machines().length }} machine(s)</div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Serial Number</th>
+          <th>Merchant</th>
+          <th>Model</th>
+          <th>Bank Account</th>
+          <th>MID</th>
+          <th>Network</th>
+          <th>Configured On</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (machines().length === 0) {
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <div class="empty-icon">&#9676;</div>
+                <p>No machines found</p>
+              </div>
+            </td>
+          </tr>
+        }
+        @for (machine of machines(); track machine.id) {
+          <tr>
+            <td><span class="serial">{{ machine.serial }}</span></td>
+            <td>
+              <div class="merchant-name">{{ machine.merchant }}</div>
+              <div class="merchant-id">{{ machine.merchantId }}</div>
+            </td>
+            <td class="model-text">{{ machine.model }}</td>
+            <td><span class="mono-text">{{ machine.account ?? "—" }}</span></td>
+            <td><span class="mid-text">{{ machine.mid ?? "—" }}</span></td>
+            <td><span class="mono-text small">{{ machine.network ?? "—" }}</span></td>
+            <td><span class="date-text">{{ machine.configuredOn ?? "—" }}</span></td>
+            <td><app-badge [status]="machine.status" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

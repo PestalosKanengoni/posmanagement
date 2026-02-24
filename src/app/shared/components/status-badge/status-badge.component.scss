@@ -1,0 +1,31 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+
+  &.pending   { background: rgba(245,158,11,0.12); color: var(--warn); }
+  &.configured{ background: rgba(16,185,129,0.12); color: var(--success); }
+  &.deployed  { background: rgba(0,212,170,0.12);  color: var(--accent); }
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+
+  .pending &   { background: var(--warn);    animation: pulse 1.5s infinite; }
+  .configured &{ background: var(--success); }
+  .deployed &  { background: var(--accent);  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}

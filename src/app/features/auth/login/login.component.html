@@ -1,0 +1,37 @@
+<div class="login-screen">
+  <div class="login-card">
+    <div class="login-brand">&#x2B23; POS Console</div>
+    <h1 class="login-title">Merchant Analyst<br>Sign In</h1>
+
+    <form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+
+      <div class="form-group custom-input">
+        <label>Employee ID / Email</label>
+        <input 
+        type="text"
+        name = "username"
+        [(ngModel)]="form.username"
+        placeholder="analyst@afcholdings.co.zw">
+          
+        <!-- @if (form.get("username")?.touched && form.get("username")?.invalid) {
+          <div class="field-error">Valid email required</div>
+        } -->
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input 
+        type="password"
+        name = "password"
+        [(ngModel)]="form.password"
+         placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;">
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="isLoading">
+        {{ isLoading ? "Signing in..." : "Access System" }}
+      </button>
+    </form>
+
+    <div class="login-hint">Demo: <span>analyst&#64;bank.com</span> / <span>password</span></div>
+  </div>
+</div>

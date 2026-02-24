@@ -1,0 +1,143 @@
+<div class="page">
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h2 class="page-title">POS Machine Requests</h2>
+    <p class="page-sub">Review and configure pending POS terminal requests</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <app-stats-card
+      label="Total Requests"
+      [value]="stats.total"
+      hint="All time"
+      variant="total"
+    ></app-stats-card>
+    <app-stats-card
+      label="Pending"
+      [value]="stats.pending"
+      hint="Awaiting action"
+      variant="pending"
+    ></app-stats-card>
+    <app-stats-card
+      label="Configured"
+      [value]="stats.configured"
+      hint="Ready to deploy"
+      variant="configured"
+    ></app-stats-card>
+    <app-stats-card
+      label="Deployed"
+      [value]="stats.deployed"
+      hint="Live at merchants"
+      variant="deployed"
+    ></app-stats-card>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Search by serial number or merchant..."
+        [formControl]="searchControl"
+      />
+    </div>
+
+    <button
+      class="filter-btn"
+      [class.active]="activeFilter === 'all'"
+      (click)="setFilter('all')"
+    >All</button>
+    <button
+      class="filter-btn"
+      [class.active-warn]="activeFilter === 'pending'"
+      (click)="setFilter('pending')"
+    >Pending</button>
+    <button
+      class="filter-btn"
+      [class.active-success]="activeFilter === 'configured'"
+      (click)="setFilter('configured')"
+    >Configured</button>
+    <button
+      class="filter-btn"
+      [class.active-accent]="activeFilter === 'deployed'"
+      (click)="setFilter('deployed')"
+    >Deployed</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Serial Number</th>
+          <th>Merchant</th>
+          <th>POS Model</th>
+          <th>Request Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="filteredMachines.length; else emptyState">
+          <tr *ngFor="let machine of filteredMachines">
+            <td><span class="serial">{{ machine.serial }}</span></td>
+            <td>
+              <div class="merchant-name">{{ machine.merchant }}</div>
+              <div class="merchant-id">{{ machine.merchantId }}</div>
+            </td>
+            <td class="model-cell">{{ machine.model }}</td>
+            <td><span class="date-text">{{ machine.requestDate }}</span></td>
+            <td><app-status-badge [status]="machine.status"></app-status-badge></td>
+            <td>
+              <!-- PENDING: show Configure -->
+              <button
+                *ngIf="machine.status === 'pending'"
+                class="action-btn configure"
+                (click)="openConfigModal(machine)"
+              >Configure</button>
+
+              <!-- CONFIGURED: show Deploy -->
+              <button
+                *ngIf="machine.status === 'configured'"
+                class="action-btn deploy"
+                [disabled]="deployingId === machine.id"
+                (click)="deployMachine(machine)"
+              >
+                {{ deployingId === machine.id ? 'Deploying...' : 'Deploy' }}
+              </button>
+
+              <!-- DEPLOYED: done state -->
+              <button
+                *ngIf="machine.status === 'deployed'"
+                class="action-btn done-state"
+                disabled
+              >Deployed ✓</button>
+            </td>
+          </tr>
+        </ng-container>
+
+        <ng-template #emptyState>
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <div class="empty-icon">◌</div>
+                <p>No requests found</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONFIG MODAL -->
+<app-config-modal
+  *ngIf="isModalOpen"
+  [machine]="selectedMachine!"
+  (closed)="closeModal()"
+  (saved)="onConfigSaved($event)"
+></app-config-modal>

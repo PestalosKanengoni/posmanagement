@@ -1,0 +1,87 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-top-line"></div>
+
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-title">Configure POS Terminal</h2>
+        <p class="modal-sub">{{ machine.serial }}</p>
+      </div>
+      <button class="modal-close" (click)="onCancel()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- MACHINE INFO -->
+    <div class="modal-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Merchant</div>
+          <div class="info-val">{{ machine.merchant }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Merchant ID</div>
+          <div class="info-val">{{ machine.merchantId }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Model</div>
+          <div class="info-val">{{ machine.model }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Request Date</div>
+          <div class="info-val">{{ machine.requestDate }}</div>
+        </div>
+      </div>
+
+      <!-- CONFIG FORM -->
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Merchant ID (MID)</label>
+            <input type="text" formControlName="mid" placeholder="MID-000000">
+            @if (form.get("mid")?.touched && form.get("mid")?.invalid) {
+              <span class="field-error">Required</span>
+            }
+          </div>
+          <div class="form-group">
+            <label>Terminal ID (TID)</label>
+            <input type="text" formControlName="tid" placeholder="TID-000000">
+            @if (form.get("tid")?.touched && form.get("tid")?.invalid) {
+              <span class="field-error">Required</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Bank Account Number</label>
+          <input type="text" formControlName="account" placeholder="1234 5678 9012 3456">
+          @if (form.get("account")?.touched && form.get("account")?.invalid) {
+            <span class="field-error">Required</span>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Payment Network</label>
+            <select formControlName="network">
+              @for (n of networks; track n) {
+                <option [value]="n">{{ n }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <select formControlName="currency">
+              @for (c of currencies; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+          <button type="submit" class="btn-confirm" [disabled]="form.invalid">Save Configuration</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

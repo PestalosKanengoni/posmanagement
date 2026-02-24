@@ -1,0 +1,85 @@
+<div class="page" [@.disabled]="true">
+  <!-- HEADER -->
+  <div class="page-header">
+    <h1 class="page-title">POS Machine Requests</h1>
+    <p class="page-sub">Review and configure pending POS terminal requests</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <app-stat-card label="Total Requests"  [value]="stats().total"      hint="All time"          variant="total" />
+    <app-stat-card label="Pending"         [value]="stats().pending"    hint="Awaiting action"   variant="pending" />
+    <app-stat-card label="Configured"      [value]="stats().configured" hint="Ready to deploy"   variant="configured" />
+    <app-stat-card label="Deployed"        [value]="stats().deployed"   hint="Live at merchants" variant="deployed" />
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">&#x2315;</span>
+      <input class="search-input" type="text" placeholder="Search by serial number or merchant..."
+        [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}" (ngModelChange)="searchTerm.set($event)">
+    </div>
+    <button class="filter-btn" [class.active]="activeFilter() === 'all'"        (click)="setFilter('all')">All</button>
+    <button class="filter-btn" [class.active-warn]="activeFilter() === 'pending'"      (click)="setFilter('pending')">Pending</button>
+    <button class="filter-btn" [class.active-info]="activeFilter() === 'configured'"   (click)="setFilter('configured')">Configured</button>
+    <button class="filter-btn" [class.active-success]="activeFilter() === 'deployed'"  (click)="setFilter('deployed')">Deployed</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Serial Number</th>
+          <th>Merchant</th>
+          <th>POS Model</th>
+          <th>Request Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (filteredMachines().length === 0) {
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <div class="empty-icon">&#9676;</div>
+                <p>No requests match your filter</p>
+              </div>
+            </td>
+          </tr>
+        }
+        @for (machine of filteredMachines(); track machine.id) {
+          <tr>
+            <td><span class="serial">{{ machine.serial }}</span></td>
+            <td>
+              <div class="merchant-name">{{ machine.merchant }}</div>
+              <div class="merchant-id">{{ machine.merchantId }}</div>
+            </td>
+            <td class="model-text">{{ machine.model }}</td>
+            <td><span class="date-text">{{ machine.requestDate }}</span></td>
+            <td><app-badge [status]="machine.status" /></td>
+            <td>
+              @if (machine.status === 'pending') {
+                <button class="action-btn configure" (click)="openConfigure(machine)">Configure</button>
+              } @else if (machine.status === 'configured') {
+                <button class="action-btn deploy" (click)="deploy(machine)">Deploy</button>
+              } @else {
+                <button class="action-btn done" disabled>Deployed ✓</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CONFIG MODAL -->
+@if (isModalOpen()) {
+  <app-config-modal
+    [machine]="selectedMachine()!"
+    (configure)="onConfigure($event)"
+    (cancel)="closeModal()" />
+}

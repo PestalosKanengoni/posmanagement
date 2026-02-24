@@ -1,0 +1,66 @@
+<div class="page">
+  <div class="page-header">
+    <h2 class="page-title">All POS Machines</h2>
+    <p class="page-sub">Search and view all configured and deployed terminals</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Search by serial number, merchant, model, or MID..."
+        [formControl]="searchControl"
+      />
+    </div>
+    <div class="result-count">
+      {{ machines.length }} machine{{ machines.length !== 1 ? 's' : '' }}
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Serial Number</th>
+          <th>Merchant</th>
+          <th>Model</th>
+          <th>Bank Account</th>
+          <th>MID</th>
+          <th>TID</th>
+          <th>Configured On</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="machines.length; else emptyState">
+          <tr *ngFor="let machine of machines">
+            <td><span class="serial">{{ machine.serial }}</span></td>
+            <td>
+              <div class="merchant-name">{{ machine.merchant }}</div>
+              <div class="merchant-id">{{ machine.merchantId }}</div>
+            </td>
+            <td class="model-cell">{{ machine.model }}</td>
+            <td><span class="mono-cell">{{ machine.account || '—' }}</span></td>
+            <td><span class="mono-cell accent">{{ machine.mid || '—' }}</span></td>
+            <td><span class="mono-cell">{{ machine.tid || '—' }}</span></td>
+            <td><span class="date-text">{{ machine.configuredOn || '—' }}</span></td>
+            <td><app-status-badge [status]="machine.status"></app-status-badge></td>
+          </tr>
+        </ng-container>
+
+        <ng-template #emptyState>
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <div class="empty-icon">◌</div>
+                <p>No machines found</p>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </tbody>
+    </table>
+  </div>
+</div>

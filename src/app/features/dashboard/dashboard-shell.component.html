@@ -1,0 +1,24 @@
+<div class="shell">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">POS<span>/</span>CONSOLE</div>
+      <nav class="nav-tabs">
+        <a class="nav-tab" routerLink="requests" routerLinkActive="active">Requests</a>
+        <a class="nav-tab" routerLink="machines" routerLinkActive="active">All Machines</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <div class="user-badge">
+        <div class="user-avatar">{{ user()?.initials }}</div>
+        <div class="user-name">{{ user()?.name }}</div>
+      </div>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- PAGE CONTENT -->
+  <main class="main">
+    <router-outlet />
+  </main>
+</div>

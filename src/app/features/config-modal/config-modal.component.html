@@ -1,0 +1,82 @@
+<div class="modal-overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+      <div>
+        <h3 class="modal-title">Configure POS Terminal</h3>
+        <p class="modal-sub">{{ machine.serial }}</p>
+      </div>
+      <button class="modal-close" (click)="close()">✕</button>
+    </div>
+
+    <!-- MACHINE INFO -->
+    <div class="modal-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Merchant</div>
+          <div class="info-val">{{ machine.merchant }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Merchant ID</div>
+          <div class="info-val">{{ machine.merchantId }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Model</div>
+          <div class="info-val">{{ machine.model }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Request Date</div>
+          <div class="info-val">{{ machine.requestDate }}</div>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+        <div class="config-row">
+          <div class="config-field">
+            <label>Merchant ID (MID)</label>
+            <input type="text" formControlName="mid" placeholder="MID-000000" />
+            <span class="field-error" *ngIf="isInvalid('mid')">MID is required</span>
+          </div>
+          <div class="config-field">
+            <label>Terminal ID (TID)</label>
+            <input type="text" formControlName="tid" placeholder="TID-000000" />
+            <span class="field-error" *ngIf="isInvalid('tid')">TID is required</span>
+          </div>
+        </div>
+
+        <div class="config-field">
+          <label>Bank Account Number</label>
+          <input
+            type="text"
+            formControlName="account"
+            placeholder="1234 5678 9012 3456"
+          />
+          <span class="field-error" *ngIf="isInvalid('account')">Account number is required</span>
+        </div>
+
+        <div class="config-row">
+          <div class="config-field">
+            <label>Payment Network</label>
+            <select formControlName="network">
+              <option *ngFor="let n of networks" [value]="n">{{ n }}</option>
+            </select>
+          </div>
+          <div class="config-field">
+            <label>Currency</label>
+            <select formControlName="currency">
+              <option *ngFor="let c of currencies" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+          <button type="submit" class="btn-confirm">Save Configuration</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

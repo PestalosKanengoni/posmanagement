@@ -1,0 +1,50 @@
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    opacity: 0.6;
+  }
+
+  &.total::after    { background: var(--accent2); }
+  &.pending::after  { background: var(--warn); }
+  &.configured::after { background: var(--success); }
+  &.deployed::after { background: var(--accent); }
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 4px;
+
+  .total &    { color: var(--accent2); }
+  .pending &  { color: var(--warn); }
+  .configured & { color: var(--success); }
+  .deployed & { color: var(--accent); }
+}
+
+.stat-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+}

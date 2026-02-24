@@ -1,0 +1,115 @@
+/* Container: Centered and full-height */
+.otp-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--bg-dark); /* Your original dark background */
+  padding: 20px;
+}
+
+/* Card: Constrained width to look professional */
+.otp-card {
+  width: 100%;
+  max-width: 400px; /* Crucial: Prevents the card from stretching */
+  background: var(--card-bg); /* Your original card color */
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.otp-brand {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 30px;
+  opacity: 0.7;
+}
+
+/* Icon Wrap: Limits the size of the SVG */
+.otp-icon-wrap {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 24px;
+  background: rgba(0, 212, 170, 0.1); /* Your accent color with transparency */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shield-icon {
+  width: 32px; /* Fixed size: No more "giant" icon */
+  height: 32px;
+  color: var(--accent);
+}
+
+.otp-title {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.otp-subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+/* Input: Large and easy to read, but fits the card */
+.otp-single-input {
+  width: 100%;
+  height: 68px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0.3em; /* Adds space between the 6 digits */
+  color: var(--accent);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.otp-single-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.15);
+  background: rgba(0, 212, 170, 0.02);
+}
+
+/* Error State */
+.otp-inputs.error .otp-single-input {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.otp-error-msg {
+  color: var(--danger);
+  font-size: 12px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+/* Button: Matches your POS brand colors */
+.btn-verify {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--accent);
+  color: var(--bg-dark); /* High contrast text */
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-verify:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

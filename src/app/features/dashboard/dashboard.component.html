@@ -1,0 +1,49 @@
+<div class="app-shell">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">POS<span>/</span>CONSOLE</div>
+      <nav class="nav-tabs">
+        <a
+          routerLink="/requests"
+          class="nav-tab"
+          [class.active]="isActive('requests')"
+        >
+          Requests
+        </a>
+        <a
+          routerLink="/machines"
+          class="nav-tab"
+          [class.active]="isActive('machines')"
+        >
+          All Machines
+        </a>
+      </nav>
+    </div>
+
+    <div class="topbar-right">
+      <div class="user-badge" *ngIf="currentUser">
+        <div class="user-avatar">{{ currentUser.initials }}</div>
+        <span class="user-name">{{ currentUser.name }}</span>
+      </div>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- PAGE CONTENT -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div class="toast-wrap">
+    <div
+      *ngFor="let toast of toasts"
+      class="toast"
+      [class.warn]="toast.type === 'warn'"
+      
+    >
+      {{ toast.message }}
+    </div>
+  </div>
+</div>
