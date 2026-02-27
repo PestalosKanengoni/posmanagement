@@ -50,11 +50,11 @@
       [class.active]="activeFilter === 'all'"
       (click)="setFilter('all')"
     >All</button>
-    <button
+    <!-- <button
       class="filter-btn"
       [class.active-warn]="activeFilter === 'pending'"
       (click)="setFilter('pending')"
-    >Pending</button>
+    >Pending</button> -->
     <button
       class="filter-btn"
       [class.active-success]="activeFilter === 'configured'"
@@ -89,8 +89,8 @@
               <div class="merchant-id">{{ machine.merchantId }}</div>
             </td>
             <td class="model-cell">{{ machine.model }}</td>
-            <td><span class="date-text">{{ machine.requestDate }}</span></td>
-            <td><app-status-badge [status]="machine.status"></app-status-badge></td>
+            <!-- <td><span class="date-text">{{ machine.requestDate }}</span></td> -->
+            <!-- <td><app-status-badge [status]="machine.status"></app-status-badge></td> -->
             <td>
               <!-- PENDING: show Configure -->
               <button
@@ -100,14 +100,14 @@
               >Configure</button>
 
               <!-- CONFIGURED: show Deploy -->
-              <button
+              <!-- <button
                 *ngIf="machine.status === 'configured'"
                 class="action-btn deploy"
                 [disabled]="deployingId === machine.id"
                 (click)="deployMachine(machine)"
               >
                 {{ deployingId === machine.id ? 'Deploying...' : 'Deploy' }}
-              </button>
+              </button> -->
 
               <!-- DEPLOYED: done state -->
               <button
@@ -135,9 +135,9 @@
 </div>
 
 <!-- CONFIG MODAL -->
-<app-config-modal
+<!-- <app-config-modal
   *ngIf="isModalOpen"
   [machine]="selectedMachine!"
   (closed)="closeModal()"
   (saved)="onConfigSaved($event)"
-></app-config-modal>
+></app-config-modal> -->

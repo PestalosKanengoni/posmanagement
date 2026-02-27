@@ -5,7 +5,7 @@ import { FormControl } from '@angular/forms';
 
 import { PosService } from '../../core/services/pos.service';
 import { ToastService } from '../../core/services/toast.service';
-import { PosMachine, PosStats, PosStatus, ConfigPayload } from '../../core/models/pos-machine.model';
+import { PosMachine, PosStats, PosStatus } from '../../core/models/pos-machine.model';
 
 type Filter = 'all' | PosStatus;
 
@@ -37,23 +37,23 @@ export class RequestsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Subscribe to stats
-    this.posService.stats$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((stats) => (this.stats = stats));
+    // this.posService.stats$
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe((stats) => (this.stats = stats));
 
     // Combine machines + search input reactively
-    combineLatest([
-      this.posService.machines$,
-      this.searchControl.valueChanges.pipe(
-        startWith(''),
-        debounceTime(200),
-        distinctUntilChanged()
-      ),
-    ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(([machines, query]) => {
-        this.applyFilter(machines, query ?? '');
-      });
+    // combineLatest([
+    //   this.posService.machines$,
+    //   this.searchControl.valueChanges.pipe(
+    //     startWith(''),
+    //     debounceTime(200),
+    //     distinctUntilChanged()
+    //   ),
+    // ])
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe(([machines, query]) => {
+    //     this.applyFilter(machines, query ?? '');
+    //   });
   }
 
   ngOnDestroy(): void {
@@ -62,11 +62,11 @@ export class RequestsComponent implements OnInit, OnDestroy {
   }
 
   setFilter(filter: Filter): void {
-    this.activeFilter = filter;
-    this.applyFilter(
-      this.posService['machinesSubject'].value,
-      this.searchControl.value ?? ''
-    );
+    // this.activeFilter = filter;
+    // this.applyFilter(
+    //   this.posService['machinesSubject'].value,
+    //   this.searchControl.value ?? ''
+    // );
   }
 
   private applyFilter(machines: PosMachine[], query: string): void {
@@ -91,30 +91,30 @@ export class RequestsComponent implements OnInit, OnDestroy {
     this.selectedMachine = null;
   }
 
-  onConfigSaved(payload: ConfigPayload): void {
-    if (!this.selectedMachine) return;
-    const id = this.selectedMachine.id;
+  // onConfigSaved(payload: ConfigPayload): void {
+  //   if (!this.selectedMachine) return;
+  //   const id = this.selectedMachine.id;
 
-    this.posService.configure(id, payload).subscribe({
-      next: (machine) => {
-        this.toast.success(`✓ ${machine.serial} configured successfully`);
-        this.closeModal();
-      },
-      error: () => this.toast.error('Configuration failed. Please try again.'),
-    });
-  }
+  //   this.posService.configure(id, payload).subscribe({
+  //     next: (machine) => {
+  //       this.toast.success(`✓ ${machine.serial} configured successfully`);
+  //       this.closeModal();
+  //     },
+  //     error: () => this.toast.error('Configuration failed. Please try again.'),
+  //   });
+  // }
 
-  deployMachine(machine: PosMachine): void {
-    this.deployingId = machine.id;
-    this.posService.deploy(machine.id).subscribe({
-      next: (m) => {
-        this.toast.success(`✓ ${m.serial} deployed to ${m.merchant}`);
-        this.deployingId = null;
-      },
-      error: () => {
-        this.toast.error('Deployment failed. Please try again.');
-        this.deployingId = null;
-      },
-    });
-  }
+  // deployMachine(machine: PosMachine): void {
+  //   this.deployingId = machine.id;
+  //   this.posService.deploy(machine.id).subscribe({
+  //     next: (m) => {
+  //       this.toast.success(`✓ ${m.serial} deployed to ${m.merchant}`);
+  //       this.deployingId = null;
+  //     },
+  //     error: () => {
+  //       this.toast.error('Deployment failed. Please try again.');
+  //       this.deployingId = null;
+  //     },
+  //   });
+  // }
 }

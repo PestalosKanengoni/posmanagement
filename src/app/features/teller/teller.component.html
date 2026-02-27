@@ -1,0 +1,194 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <div class="nav-logo">
+      <span class="logo-hex">⬡</span>
+      <span class="logo-text">POS<span class="logo-slash">/</span>CONSOLE</span>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-role-badge">
+      <span class="role-dot"></span>
+      Teller
+    </div>
+  </div>
+
+  <div class="navbar-right">
+
+    <div class="nav-user">
+      <div class="nav-avatar">{{ currentUser()?.initials }}</div>
+      <div class="nav-user-info">
+        <span class="nav-user-name">{{ currentUser()?.name }}</span>
+        <span class="nav-user-email">{{ currentUser()?.email }}</span>
+      </div>
+    </div>
+
+    <div class="nav-sep"></div>
+
+    <button class="btn-logout" (click)="onLogout()">
+      <span>Sign Out</span>
+      <span class="logout-icon">→</span>
+    </button>
+  </div>
+</nav>
+
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">POS Applications</h1>
+      <p class="page-sub">Applications awaiting your approval</p>
+    </div>
+    <button class="btn-refresh" (click)="loadApplications()" [disabled]="isLoading()">
+      {{ isLoading() ? "Loading…" : "↻ Refresh" }}
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading applications…</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (errorMessage()) {
+    <div class="error-banner">
+      ⚠ {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!isLoading() && !errorMessage() && applications().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">✓</div>
+      <p>No applications awaiting your approval</p>
+    </div>
+  }
+
+  <!-- Applications list -->
+  @if (!isLoading()) {
+    <div class="app-count" *ngIf="applications().length > 0">
+      {{ applications().length }} application(s) pending
+    </div>
+
+    <div class="applications">
+      @for (app of applications(); track $index) {
+        <div class="app-card" [class.expanded]="expandedIndex() === $index">
+
+          <!-- Card header — always visible -->
+          <div class="app-card-header" (click)="toggleExpand($index)">
+            <div class="app-card-left">
+              <div class="trade-name">{{ getUniqueTrades(app) }}</div>
+              <div class="app-meta">
+                <span class="meta-item">📍 {{ getUniqueLocations(app) }}</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">{{ getUniqueCategories(app) }}</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">{{ app.requests.length }} POS terminal(s)</span>
+              </div>
+            </div>
+            <div class="app-card-right">
+              <span class="status-chip">AWAITING APPROVAL</span>
+              <span class="chevron" [class.open]="expandedIndex() === $index">›</span>
+            </div>
+          </div>
+
+          <!-- Expanded content -->
+          @if (expandedIndex() === $index) {
+            <div class="app-card-body">
+
+              <!-- POS Requests table -->
+              <div class="section-label">POS Terminals Requested</div>
+              <div class="requests-table-wrap">
+                <table class="requests-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Trade Name</th>
+                      <th>Category</th>
+                      <th>Location</th>
+                      <th>MCC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (req of app.requests; track req.id) {
+                      <tr>
+                        <td class="row-num">{{ $index + 1 }}</td>
+                        <td class="td-name">{{ req.tradeName }}</td>
+                        <td>
+                          <span class="cat-chip">{{ req.category.name }}</span>
+                        </td>
+                        <td class="td-location">{{ req.location }}</td>
+                        <td class="td-mcc">{{ req.merchantCategoryCode }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Charge codes -->
+              <div class="section-label" style="margin-top:20px">
+                Select Charge Codes
+                <span class="section-hint">— pick all that apply for this application</span>
+              </div>
+              <div class="charge-codes-grid">
+                @for (code of getFilteredCodes($index); track code.id) {
+                  <div
+                    class="code-card"
+                    [class.selected]="isCodeSelected($index, code)"
+                    (click)="toggleCode($index, code)"
+                  >
+                    <div class="code-top">
+                      <span class="code-label">{{ code.code }}</span>
+                      <span class="currency-chip" [class]="getCurrencyColor(code.currency)">
+                        {{ code.currency }}
+                      </span>
+                    </div>
+                    <div class="code-desc">{{ code.description }}</div>
+                    <div class="code-pct">{{ code.percentage }}%</div>
+                    <div class="check-mark" *ngIf="isCodeSelected($index, code)">✓</div>
+                  </div>
+                }
+              </div>
+
+              <!-- Remarks -->
+              <div class="section-label" style="margin-top:20px">
+                Remarks <span class="section-hint">(optional)</span>
+              </div>
+              <textarea
+                class="remarks-input"
+                placeholder="Add any notes…"
+                [(ngModel)]="getSelection($index).remarks"
+                rows="3"
+              ></textarea>
+
+              <!-- Action buttons -->
+              <div class="action-row">
+                <button
+                  class="btn-decline"
+                  (click)="authorise($index, 'DECLINED')"
+                  [disabled]="isSubmitting()"
+                >
+                  Decline
+                </button>
+                <button
+                  class="btn-approve"
+                  (click)="authorise($index, 'APPROVED')"
+                  [disabled]="isSubmitting() || !canSubmit($index)"
+                  [title]="!canSubmit($index) ? 'Select at least one charge code to approve' : ''"
+                >
+                  {{ isSubmitting() ? "Processing…" : "Authorise" }}
+                </button>
+              </div>
+
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

@@ -5,6 +5,7 @@ import { ToastService } from "../../../core/services/toast.service";
 import { StorageService } from "src/app/core/services/storage.service";
 import { AuthService } from "src/app/core/services/auth.service";
 import { CommonModule } from "@angular/common";
+import { AppRole } from "src/app/core/models/auth.model";
 
 @Component({
   selector: "app-login",
@@ -31,6 +32,13 @@ export class LoginComponent {
   errorMessage = '';
   roles: string[] = [];
   isLoading = false;
+
+  ngOnInit(): void {
+    // Already logged in? Redirect straight to their workspace
+    // if (this.auth.isAuthenticated()) {
+    //   this.redirectByRole(this.auth.currentUser()!.role as AppRole);
+    // }
+  }
 
   onSubmit(): void {
 
@@ -67,8 +75,17 @@ export class LoginComponent {
         this.storageService.saveUser(data);
         console.log('User saved, navigating to dashboard...');
 
-        this.router.navigate(['/dashboard']);
-      },
+
+        this.isLoggedIn = true;
+        // this.redirectByRole(this.auth.currentUser()!.role as AppRole);
+        const userRole = data.user.roles[0]?.role;
+
+      if (userRole) {
+        this.redirectByRole(userRole);
+      } else {
+        this.router.navigate(['/dashboard']); // Fallback
+      }
+    },
       error: (err) => {
         this.isLoading     = false;
         this.isLoginFailed = true;
@@ -83,5 +100,20 @@ export class LoginComponent {
     reloadPage(): void {
     window.location.reload();
   }
+
+private redirectByRole(role: string): void {
+  // Convert to uppercase to match your JSON ("TELLER")
+  const normalizedRole = role.toUpperCase();
+
+  const destinations: Record<string, string> = {
+    'TELLER':  "/teller",
+    'MANAGER': "/manager",
+    'ANALYST': "/analyst",
+  };
+
+  const target = destinations[normalizedRole] || '/dashboard';
+  console.log(`Navigating ${normalizedRole} to ${target}`);
+  this.router.navigate([target]);
+}
   
 }

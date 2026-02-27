@@ -18,8 +18,9 @@ export const routes: Routes = [
     loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.dashboardRoutes)
   },
   {
-    path: "verify",
-    loadComponent: () => import('./features/auth/otp/otp-verification.component').then(m => m.OtpVerificationComponent)
+    path: "teller",
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/teller/teller.component').then(m => m.TellerComponent)
   },
   {
     path: '**',
