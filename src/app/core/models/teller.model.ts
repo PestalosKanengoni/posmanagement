@@ -15,6 +15,8 @@ export interface PosRequest {
   status: string;
   remarks: string;
   approvedAt: string | null;
+  chargeCodes: ChargeCode[];
+  accounts: Account[];
 }
 
 export interface PosApplication {
@@ -23,6 +25,7 @@ export interface PosApplication {
   approvedAt: string | null;
   approvalStatus: string;
   requests: PosRequest[];
+  chargeCodes: ChargeCode[];
 }
 
 export interface ApplicationsResponse {
@@ -43,7 +46,16 @@ export interface ChargeCode {
 
 export interface AuthorisePayload {
   remarks: string;
-  status: 'APPROVED' | 'DECLINED';
+  status: 'APPROVED' | 'REJECTED';
   applicationId: string;
   chargeCodes: ChargeCode[];
+}
+
+export interface Account {
+  id: string;
+  accountNumber: string;
+  accountName: string;
+  currency: string;
+  customerId: string;
+  isPrimary: boolean;
 }

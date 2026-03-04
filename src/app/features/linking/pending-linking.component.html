@@ -1,0 +1,251 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <div class="nav-brand">
+      <img src="assets/images/logo.png" alt="AFC Commercial Bank" class="nav-logo-img">
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-role-badge">
+      <span class="role-dot"></span>
+      Merchant Analyst
+    </div>
+    <div class="nav-divider"></div>
+    <nav class="nav-links">
+      <a class="nav-link" routerLink="/analyst" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Applications</a>
+      <a class="nav-link" routerLink="/pending-linking" routerLinkActive="active">Pending Linking</a>
+      <a class="nav-link" routerLink="/devices" routerLinkActive="active">Devices</a>
+    </nav>
+  </div>
+  <div class="navbar-right">
+    <div class="nav-user">
+      <div class="nav-avatar">{{ currentUser()?.initials }}</div>
+      <div class="nav-user-info">
+        <span class="nav-user-name">{{ currentUser()?.name }}</span>
+        <span class="nav-user-email">{{ currentUser()?.email }}</span>
+      </div>
+    </div>
+    <div class="nav-sep"></div>
+    <button class="btn-logout" (click)="onLogout()">
+      <span>Sign Out</span>
+      <span class="logout-icon">→</span>
+    </button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Pending Terminal Linking</h1>
+      <p class="page-sub">Merchants with terminals awaiting POS assignment</p>
+    </div>
+    <button class="btn-refresh" (click)="loadMerchants()" [disabled]="isLoading()">
+      {{ isLoading() ? "Loading..." : "↻ Refresh" }}
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading merchants...</p>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-banner">⚠ {{ errorMessage() }}</div>
+  }
+
+  @if (!isLoading() && !errorMessage() && merchants().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">✓</div>
+      <p>No terminals pending linking</p>
+    </div>
+  }
+
+  @if (!isLoading() && merchants().length > 0) {
+    <div class="app-count">
+      Showing {{ (currentPage() - 1) * pageSize + 1 }} –
+      {{ (currentPage() * pageSize) > merchants().length ? merchants().length : (currentPage() * pageSize) }}
+      of {{ merchants().length }} merchant(s) · {{ getTotalTerminals() }} terminal(s) pending
+    </div>
+
+    <div class="merchants">
+      @for (merchant of pagedMerchants; track merchant.id) {
+        <div class="merchant-card" [class.expanded]="isExpanded(merchant)">
+
+          <div
+            class="merchant-header"
+            [class.clickable]="merchant.terminals.length > 1"
+            (click)="merchant.terminals.length > 1 && toggleMerchant(merchant.id)">
+            <div class="merchant-header-left">
+              <div class="merchant-name">{{ merchant.name }}</div>
+              <div class="merchant-meta">
+                <span class="meta-item">📍 {{ merchant.location }}</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">{{ merchant.terminals.length }} terminal(s)</span>
+                @if (merchant.terminals.length > 1 && !isExpanded(merchant)) {
+                  <span class="meta-sep">·</span>
+                  <span class="meta-hint">click to expand</span>
+                }
+              </div>
+            </div>
+            <div class="merchant-header-right">
+              <span class="terminal-count-badge">{{ merchant.terminals.length }}</span>
+              @if (merchant.terminals.length > 1) {
+                <span class="chevron" [class.open]="isExpanded(merchant)">›</span>
+              }
+            </div>
+          </div>
+
+          @if (isExpanded(merchant)) {
+            <div class="terminals-list">
+              @for (terminal of merchant.terminals; track terminal.id) {
+                <div class="terminal-row" [class.is-open]="linkingTerminalId() === terminal.id">
+
+                  <!-- Terminal info -->
+                  <div class="terminal-info">
+                    <div class="terminal-top">
+                      <div class="terminal-tid">
+                        <span class="tid-label">TID</span>
+                        <span class="tid-value">{{ terminal.tid }}</span>
+                      </div>
+                      <div class="terminal-tags">
+                        <span class="cat-chip">{{ terminal.category.name }}</span>
+                        <span class="status-chip status-inactive">{{ terminal.status }}</span>
+                      </div>
+                    </div>
+                    <div class="terminal-accounts">
+                      @for (acc of terminal.accounts; track acc.id) {
+                        <div class="acc-inline">
+                          <span class="acc-badge" [class]="getCurrencyColor(acc.currency)">{{ acc.currency }}</span>
+                          <span class="acc-num">{{ acc.accountNumber }}</span>
+                          <span class="acc-name">{{ acc.accountName }}</span>
+                          @if (acc.isPrimary) { <span class="primary-tag">Primary</span> }
+                        </div>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Action / form -->
+                  <div class="terminal-action">
+                    @if (linkingTerminalId() !== terminal.id) {
+                      @if (isLinked(terminal.id)) {
+                        <span class="linked-badge">✓ Linked</span>
+                      } @else {
+                        <button class="btn-link" (click)="openLinkForm(terminal.id)">
+                          ⊕ Link POS
+                        </button>
+                      }
+                    } @else {
+                      <div class="link-form">
+                        <div class="link-form-title">Assign POS Device</div>
+
+                        <div class="form-grid">
+
+                          <!-- POS Terminal dropdown -->
+                          <div class="form-field">
+                            <label class="form-label">POS Terminal <span class="required">*</span></label>
+                            @if (posDevices().length === 0) {
+                              <div class="devices-loading">Loading POS devices…</div>
+                            } @else {
+                              <select
+                                class="form-input form-select"
+                                [ngModel]="getFormState(terminal.id).selectedPos?.id ?? ''"
+                                (ngModelChange)="onPosSelect(terminal.id, $event)">
+                                <option value="">— Select POS terminal —</option>
+                                @for (pos of posDevices(); track pos.id) {
+                                  <option [value]="pos.id">
+                                    {{ pos.serial }} — {{ pos.description }}
+                                  </option>
+                                }
+                              </select>
+                            }
+                            <!-- Selected POS preview -->
+                            @if (getFormState(terminal.id).selectedPos; as pos) {
+                              <div class="device-preview">
+                                <span class="preview-label">Serial:</span> {{ pos.serial }}
+                                <span class="preview-sep">·</span>
+                                <span class="preview-label">Status:</span>
+                                <span class="status-chip-sm">{{ pos.status }}</span>
+                              </div>
+                            }
+                          </div>
+
+                          <!-- MSISDN dropdown -->
+                          <div class="form-field">
+                            <label class="form-label">Mobile Number <span class="required">*</span></label>
+                            @if (msisdnList().length === 0) {
+                              <div class="devices-loading">Loading mobile numbers…</div>
+                            } @else {
+                              <select
+                                class="form-input form-select"
+                                [ngModel]="getFormState(terminal.id).selectedMsisdn?.id ?? ''"
+                                (ngModelChange)="onMsisdnSelect(terminal.id, $event)">
+                                <option value="">— Select mobile number —</option>
+                                @for (m of msisdnList(); track m.id) {
+                                  <option [value]="m.id">
+                                    {{ m.msisdn }} ({{ m.mno }})
+                                  </option>
+                                }
+                              </select>
+                            }
+                            <!-- Selected MSISDN preview -->
+                            @if (getFormState(terminal.id).selectedMsisdn; as m) {
+                              <div class="device-preview">
+                                <span class="preview-label">MNO:</span> {{ m.mno }}
+                                <span class="preview-sep">·</span>
+                                <span class="preview-label">Serial:</span> {{ m.serial }}
+                              </div>
+                            }
+                          </div>
+
+                        </div>
+
+                        @if (getFormError(terminal.id)) {
+                          <p class="form-error">⚠ {{ getFormError(terminal.id) }}</p>
+                        }
+
+                        <div class="form-actions">
+                          <button class="btn-cancel" (click)="cancelLink()" [disabled]="isSubmitting()">Cancel</button>
+                          <button class="btn-confirm" (click)="submitLink(terminal.id)" [disabled]="isSubmitting()">
+                            {{ isSubmitting() ? "Linking..." : "Confirm Link" }}
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                </div>
+              }
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+@if (totalPages > 1) {
+  <div class="pagination-container">
+    <div class="pagination-wrapper">
+      <div class="nav-button-group">
+        <button class="page-btn-nav" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)">
+          <span class="nav-arrow">←</span> Previous
+        </button>
+        <button class="page-btn-nav" [disabled]="currentPage() === totalPages" (click)="setPage(currentPage() + 1)">
+          Next <span class="nav-arrow">→</span>
+        </button>
+      </div>
+      <div class="page-numbers">
+        @for (p of getPageNumbers(); track p) {
+          @if (p === -1) {
+            <span class="page-ellipsis">…</span>
+          } @else {
+            <button class="page-num" [class.active]="currentPage() === p" (click)="setPage(p)">{{ p }}</button>
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

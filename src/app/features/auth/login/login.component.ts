@@ -107,8 +107,8 @@ private redirectByRole(role: string): void {
 
   const destinations: Record<string, string> = {
     'TELLER':  "/teller",
-    'MANAGER': "/manager",
-    'ANALYST': "/analyst",
+    'BRANCH_MANAGER': "/manager",
+    'MERCHANT_SERVICES_ANALYST': "/analyst",
   };
 
   const target = destinations[normalizedRole] || '/dashboard';

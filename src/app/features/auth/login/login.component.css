@@ -1,4 +1,18 @@
-:host { display: block; }
+:host {
+  --afc-green:       #006838;
+  --afc-green-light: #4caf50;
+  --afc-green-dim:   rgba(0, 104, 56, 0.08);
+  --bg:              #f0f4f0;
+  --surface:         #ffffff;
+  --border:          #c8dcc8;
+  --text:            #1a2e1a;
+  --text-mid:        #4a6b4a;
+  --text-dim:        #7a9b7a;
+  --accent:          #006838;
+  --accent2:         #4caf50;
+  --danger:          #c0392b;
+  --font-mono:       'DM Mono', 'Courier New', monospace;
+}
 
 .login-screen {
   min-height: 100vh;
@@ -7,15 +21,16 @@
   justify-content: center;
   background: var(--bg);
   position: relative;
-}
 
-.login-screen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 20% 50%, rgba(0,212,170,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 80% 30%, rgba(0,136,255,0.05) 0%, transparent 60%);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 50%, rgba(0, 104, 56, 0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 30%, rgba(76, 175, 80, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
 }
 
 .login-card {
@@ -24,24 +39,39 @@
   border-radius: 4px;
   padding: 48px;
   width: 400px;
+  max-width: 95vw;
   position: relative;
   z-index: 1;
-  animation: fadeIn 0.4s ease;
+  box-shadow: 0 4px 24px rgba(0, 104, 56, 0.08);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--afc-green), var(--afc-green-light));
+    border-radius: 4px 4px 0 0;
+  }
 }
 
-.login-card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
+/* ── Logo ── */
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.logo-img {
+  width: 140px;
+  height: auto;
+  object-fit: contain;
 }
 
 .login-brand {
-  font-family: var(--mono);
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.2em;
-  color: var(--accent);
+  color: var(--afc-green);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -56,57 +86,90 @@
 
 .form-group {
   margin-bottom: 20px;
-}
 
-.form-group label {
-  display: block;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 8px;
-}
+  label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
 
-.form-group input {
-  width: 100%;
-  padding: 12px 14px;
-  font-size: 13px;
+  input {
+    width: 100%;
+    background: #f8fbf8;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: var(--afc-green);
+      box-shadow: 0 0 0 3px rgba(0, 104, 56, 0.1);
+    }
+
+    &::placeholder {
+      color: var(--text-dim);
+    }
+  }
 }
 
 .field-error {
-  font-family: var(--mono);
-  font-size: 11px;
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
   color: var(--danger);
   margin-top: 5px;
 }
 
 .btn-primary {
   width: 100%;
-  background: var(--accent);
-  color: #0a0e1a;
+  background: var(--afc-green);
+  color: #ffffff;
   border: none;
   border-radius: 3px;
   padding: 13px;
-  font-family: var(--mono);
+  font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
   margin-top: 8px;
-}
 
-.btn-primary:hover:not(:disabled) { opacity: 0.88; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:hover:not(:disabled) {
+    background: #005230;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 104, 56, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
 
 .login-hint {
   font-size: 12px;
   color: var(--text-dim);
   margin-top: 16px;
   text-align: center;
-  font-family: var(--mono);
-}
+  font-family: var(--font-mono);
 
-.login-hint span { color: var(--accent); }
+  span {
+    color: var(--afc-green);
+    font-weight: 600;
+  }
+}

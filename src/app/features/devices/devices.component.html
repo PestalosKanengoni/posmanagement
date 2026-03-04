@@ -1,0 +1,233 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <div class="nav-brand">
+      <img src="assets/images/logo.png" alt="AFC Commercial Bank" class="nav-logo-img">
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-role-badge">
+      <span class="role-dot"></span>
+      Merchant Analyst
+    </div>
+    <div class="nav-divider"></div>
+    <nav class="nav-links">
+      <a class="nav-link" routerLink="/analyst" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Applications</a>
+      <a class="nav-link" routerLink="/pending-linking" routerLinkActive="active">Pending Linking</a>
+      <a class="nav-link" routerLink="/devices" routerLinkActive="active">Devices</a>
+    </nav>
+  </div>
+  <div class="navbar-right">
+    <div class="nav-user">
+      <div class="nav-avatar">{{ currentUser()?.initials }}</div>
+      <div class="nav-user-info">
+        <span class="nav-user-name">{{ currentUser()?.name }}</span>
+        <span class="nav-user-email">{{ currentUser()?.email }}</span>
+      </div>
+    </div>
+    <div class="nav-sep"></div>
+    <button class="btn-logout" (click)="onLogout()">
+      <span>Sign Out</span>
+      <span class="logout-icon">→</span>
+    </button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Device Management</h1>
+      <p class="page-sub">Register POS terminals and mobile numbers for merchant linking</p>
+    </div>
+  </div>
+
+  <!-- Tab switcher -->
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab() === 'pos'" (click)="setTab('pos')">
+      <span class="tab-icon">⊡</span>
+      <span>POS Terminal</span>
+      @if (activeTab() === 'pos') { <span class="tab-indicator"></span> }
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'msisdn'" (click)="setTab('msisdn')">
+      <span class="tab-icon">📱</span>
+      <span>Mobile Number</span>
+      @if (activeTab() === 'msisdn') { <span class="tab-indicator"></span> }
+    </button>
+  </div>
+
+  <!-- ══ POS FORM ══ -->
+  @if (activeTab() === 'pos') {
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="form-card-title">
+          <span class="form-card-icon">⊡</span>
+          Register New POS Terminal
+        </div>
+        <p class="form-card-desc">
+          Add a new POS device to the system. Set the initial status appropriate for the terminal's deployment stage.
+        </p>
+      </div>
+
+      <div class="form-body">
+        <div class="field-group">
+          <div class="form-field">
+            <label class="form-label">Serial Number <span class="required">*</span></label>
+            <input
+              class="form-input"
+              type="text"
+              placeholder="e.g. SN123456789"
+              [(ngModel)]="posForm.serial"
+              [class.has-error]="posErrors.serial"
+            />
+            @if (posErrors.serial) { <p class="field-error">{{ posErrors.serial }}</p> }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">Status <span class="required">*</span></label>
+            <select
+              class="form-input form-select"
+              [(ngModel)]="posForm.status"
+              [class.has-error]="posErrors.status"
+            >
+              <option value="">— Select status —</option>
+              @for (opt of posStatusOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+            @if (posErrors.status) { <p class="field-error">{{ posErrors.status }}</p> }
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Description <span class="required">*</span></label>
+          <textarea
+            class="form-input form-textarea"
+            placeholder="e.g. Ingenico iCT220 terminal for Harare branch"
+            [(ngModel)]="posForm.description"
+            [class.has-error]="posErrors.description"
+            rows="3"
+          ></textarea>
+          @if (posErrors.description) { <p class="field-error">{{ posErrors.description }}</p> }
+        </div>
+
+        @if (posSuccess) {
+          <div class="success-banner">✓ POS terminal registered successfully.</div>
+        }
+        @if (posServerError) {
+          <div class="error-banner">⚠ {{ posServerError }}</div>
+        }
+
+        <div class="form-actions">
+          <button class="btn-reset" (click)="resetPos()" [disabled]="isPosSubmitting()">Reset</button>
+          <button class="btn-submit" (click)="submitPos()" [disabled]="isPosSubmitting()">
+            @if (isPosSubmitting()) {
+              <span class="btn-spinner"></span> Registering…
+            } @else {
+              ⊕ Register Terminal
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ══ MSISDN FORM ══ -->
+  @if (activeTab() === 'msisdn') {
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="form-card-title">
+          <span class="form-card-icon">📱</span>
+          Register Mobile Number (MSISDN)
+        </div>
+        <p class="form-card-desc">
+          Add a mobile number for POS linking. Select the mobile network operator and initial status.
+        </p>
+      </div>
+
+      <div class="form-body">
+        <div class="field-group">
+          <div class="form-field">
+            <label class="form-label">MSISDN <span class="required">*</span></label>
+            <div class="input-wrap">
+              <span class="input-prefix">+263</span>
+              <input
+                class="form-input with-prefix"
+                type="text"
+                placeholder="771234567"
+                [(ngModel)]="msisdnForm.msisdn"
+                [class.has-error]="msisdnErrors.msisdn"
+              />
+            </div>
+            @if (msisdnErrors.msisdn) { <p class="field-error">{{ msisdnErrors.msisdn }}</p> }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">Serial Number <span class="required">*</span></label>
+            <input
+              class="form-input"
+              type="text"
+              placeholder="e.g. SN123456789"
+              [(ngModel)]="msisdnForm.serial"
+              [class.has-error]="msisdnErrors.serial"
+            />
+            @if (msisdnErrors.serial) { <p class="field-error">{{ msisdnErrors.serial }}</p> }
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="form-field">
+            <label class="form-label">Mobile Network Operator <span class="required">*</span></label>
+            <div class="mno-picker">
+              @for (mno of mnoOptions; track mno.value) {
+                <button
+                  type="button"
+                  class="mno-option"
+                  [class.selected]="msisdnForm.mno === mno.value"
+                  [class.has-error]="msisdnErrors.mno"
+                  (click)="msisdnForm.mno = mno.value">
+                  <span class="mno-dot" [style.background]="mno.color"></span>
+                  <span class="mno-label">{{ mno.label }}</span>
+                  @if (msisdnForm.mno === mno.value) { <span class="mno-check">✓</span> }
+                </button>
+              }
+            </div>
+            @if (msisdnErrors.mno) { <p class="field-error">{{ msisdnErrors.mno }}</p> }
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">Status <span class="required">*</span></label>
+            <select
+              class="form-input form-select"
+              [(ngModel)]="msisdnForm.status"
+              [class.has-error]="msisdnErrors.status"
+            >
+              <option value="">— Select status —</option>
+              @for (opt of msisdnStatusOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+            @if (msisdnErrors.status) { <p class="field-error">{{ msisdnErrors.status }}</p> }
+          </div>
+        </div>
+
+        @if (msisdnSuccess) {
+          <div class="success-banner">✓ Mobile number registered successfully.</div>
+        }
+        @if (msisdnServerError) {
+          <div class="error-banner">⚠ {{ msisdnServerError }}</div>
+        }
+
+        <div class="form-actions">
+          <button class="btn-reset" (click)="resetMsisdn()" [disabled]="isMsisdnSubmitting()">Reset</button>
+          <button class="btn-submit" (click)="submitMsisdn()" [disabled]="isMsisdnSubmitting()">
+            @if (isMsisdnSubmitting()) {
+              <span class="btn-spinner"></span> Registering…
+            } @else {
+              ⊕ Register Number
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

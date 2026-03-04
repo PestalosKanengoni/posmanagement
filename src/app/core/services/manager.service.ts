@@ -12,7 +12,7 @@ export interface ChargeCodeResponse {
 }
 
 @Injectable({ providedIn: "root" })
-export class TellerService {
+export class ManagerService {
 
   constructor(private http: HttpClient,private storageService: StorageService) {}
 
@@ -34,7 +34,7 @@ export class TellerService {
 
   /** GET /posman/application/my-applications/AWAITING_TELLER_APPROVAL */
   getApplications(): Observable<ApplicationsResponse> {
-  const url = `${this.base}/posman/application/my-applications/AWAITING_TELLER_APPROVAL`
+  const url = `${this.base}/posman/application/my-applications/AWAITING_BM_APPROVAL`
     return this.http.get<ApplicationsResponse>(url, { headers: this.getHeaders()}).pipe(
         map((response: any) => {
           console.log('requests fetched:', response);
@@ -47,15 +47,6 @@ export class TellerService {
       );
     }
 
-    // ── NEW ────────────────────────────────────────────────────────
-getAllApplications(): Observable<ApplicationsResponse> {
-  const url = `${this.base}/posman/application/my-applications/ALL`;
-  return this.http.get<ApplicationsResponse>(url, { headers: this.getHeaders() }).pipe(
-    map((response: any) => response),
-    catchError(error => throwError(() => error))
-  );
-}
-
     getChargeCodes(): Observable<ChargeCodeResponse> {
   const url = `${this.base}/posman/application/chargeCode`;
   return this.http.get<ChargeCodeResponse>(url, { headers: this.getHeaders() }).pipe(
@@ -64,6 +55,14 @@ getAllApplications(): Observable<ApplicationsResponse> {
       console.error('Error fetching charge codes:', err);
       return throwError(() => err);
     })
+  );
+}
+
+getAllApplications(): Observable<ApplicationsResponse> {
+  const url = `${this.base}/posman/application/my-applications/ALL`;
+  return this.http.get<ApplicationsResponse>(url, { headers: this.getHeaders() }).pipe(
+    map((response: any) => response),
+    catchError(error => throwError(() => error))
   );
 }
    

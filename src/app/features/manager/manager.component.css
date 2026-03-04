@@ -11,6 +11,8 @@
   padding: 0 28px;
   box-shadow: 0 2px 8px rgba(0, 104, 56, 0.25);
 }
+/* ── Updated Branding Styles ── */
+
 .nav-brand {
   display: flex;
   align-items: center;
@@ -52,6 +54,8 @@
   letter-spacing: 0.12em;
   margin-top: 2px;
 }
+
+/* Remove or comment out your old .nav-logo, .logo-hex, .logo-text styles */
 /* Left */
 .navbar-left  { display: flex; align-items: center; gap: 16px; }
 .nav-logo     { display: flex; align-items: center; gap: 8px; }
@@ -74,8 +78,8 @@
 }
 .role-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: #a8f0c6;
-  box-shadow: 0 0 6px #a8f0c6;
+  background: #ffd580;
+  box-shadow: 0 0 6px #ffd580;
   animation: pulse 2s infinite;
 }
 @keyframes pulse {
@@ -243,32 +247,84 @@
   border: 1px solid rgba(0,104,56,0.15);
 }
 
-/* ── Charge codes ── */
-.charge-codes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-.code-card {
-  border: 1px solid #c8dcc8; border-radius: 5px; padding: 13px 14px;
-  cursor: pointer; transition: all 0.15s; position: relative;
-  background: #ffffff;
-}
-.code-card:hover    { border-color: #006838; background: #f8fbf8; }
-.code-card.selected { border-color: #006838; background: rgba(0,104,56,0.06); }
-.code-top  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.code-label { font-family: var(--mono, monospace); font-size: 11px; font-weight: 600; color: #1a2e1a; }
-.code-desc  { font-size: 11px; color: #4a6b4a; margin-bottom: 6px; }
-.code-pct   { font-family: var(--mono, monospace); font-size: 13px; font-weight: 700; color: #006838; }
-.check-mark {
-  position: absolute; top: 10px; right: 10px;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: #006838; color: #fff;
-  font-size: 10px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
-
+/* ── Currency chips ── */
 .currency-chip { font-family: var(--mono, monospace); font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
 .chip-usd   { background: rgba(0,104,56,0.08);   color: #006838; border: 1px solid rgba(0,104,56,0.2); }
 .chip-zwg   { background: rgba(240,160,75,0.10);  color: #b07a00; border: 1px solid rgba(240,160,75,0.2); }
 .chip-multi { background: rgba(0,104,56,0.05);    color: #4a6b4a; border: 1px solid rgba(0,104,56,0.15); }
 
+/* ── Charge code pills (read-only for manager) ── */
+.cc-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cc-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(0, 104, 56, 0.06);
+  border: 1px solid rgba(0, 104, 56, 0.2);
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+/* Read-only variant — slightly muted to signal non-interactivity */
+.cc-pill--readonly {
+  background: rgba(0, 104, 56, 0.04);
+  border-color: rgba(0, 104, 56, 0.15);
+  cursor: default;
+}
+
+.pill-code {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  font-weight: 600;
+  color: #006838;
+}
+
+.pill-pct {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  color: #4a6b4a;
+}
+
+.cc-empty-hint {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  color: #7a9b7a;
+  margin-top: 10px;
+}
+.status-chip {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-family: var(--mono, monospace);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Dynamic colors */
+.status-pending {
+  background: rgba(243, 156, 18, 0.1); /* Orange-ish */
+  color: #d35400;
+  border: 1px solid rgba(211, 84, 0, 0.2);
+}
+
+.status-approved {
+  background: rgba(0, 104, 56, 0.08); /* Green */
+  color: #006838;
+  border: 1px solid rgba(0, 104, 56, 0.2);
+}
+
+.status-rejected {
+  background: rgba(192, 57, 43, 0.08); /* Red */
+  color: #c0392b;
+  border: 1px solid rgba(192, 57, 43, 0.2);
+}
 /* ── Remarks ── */
 .remarks-input {
   width: 100%; background: #ffffff;
@@ -315,117 +371,71 @@
   .page { padding: 16px; }
 }
 
-.cc-dropdown-wrap {
-  position: relative;
+.client-details-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
 }
 
-.cc-select {
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid #c8dcc8;
-  border-radius: 4px;
-  padding: 11px 36px 11px 14px;
-  color: #1a2e1a;
-  font-family: var(--mono, monospace);
-  font-size: 12px;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a9b7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
+.client-name {
+  font-size: 1.15rem; /* Slightly larger for emphasis */
+  font-weight: 700;    /* Bold */
+  color: #000000;      /* Pure Black */
+  margin-top: 4px;
+  letter-spacing: -0.01em; /* Tightens the text for a modern look */
 }
 
-.cc-select:focus {
-  border-color: #006838;
-  box-shadow: 0 0 0 3px rgba(0, 104, 56, 0.1);
+/* Optional: Add a subtle hover effect if you want it to feel interactive */
+.client-name:hover {
+  color: #1a1a1a;
 }
 
-.cc-select option:disabled {
-  color: #7a9b7a;
+.info-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
-/* ── Selected pills ── */
-.cc-pills {
+.info-value {
+  font-size: 15px;
+  color: #0f172a;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.account-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
-.cc-pill {
+.account-badge {
   display: flex;
   align-items: center;
-  gap: 7px;
-  background: rgba(0, 104, 56, 0.06);
-  border: 1px solid rgba(0, 104, 56, 0.2);
-  border-radius: 4px;
-  padding: 6px 10px;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: 'Courier New', Courier, monospace;
 }
 
-.pill-code {
-  font-family: var(--mono, monospace);
-  font-size: 11px;
-  font-weight: 600;
-  color: #006838;
-}
-
-.pill-pct {
-  font-family: var(--mono, monospace);
-  font-size: 11px;
-  color: #4a6b4a;
-}
-
-.pill-remove {
-  background: none;
-  border: none;
-  color: #7a9b7a;
-  cursor: pointer;
-  font-size: 11px;
-  padding: 0;
-  line-height: 1;
-  transition: color 0.15s;
-  margin-left: 2px;
-}
-.pill-remove:hover { color: #c0392b; }
-
-.cc-empty-hint {
-  font-family: var(--mono, monospace);
-  font-size: 11px;
-  color: #7a9b7a;
-  margin-top: 10px;
-}
-
-/* Base chip style */
-.status-chip {
-  padding: 3px 10px;
-  border-radius: 4px;
-  font-family: var(--mono, monospace);
-  font-size: 9px;
-  letter-spacing: 0.08em;
+.acc-currency {
+  font-size: 10px;
   font-weight: 700;
-  text-transform: uppercase;
+  color: #1e293b;
+  margin-right: 8px;
+  padding-right: 8px;
+  border-right: 1px solid #e2e8f0;
 }
 
-/* Dynamic colors */
-.status-pending {
-  background: rgba(243, 156, 18, 0.1); /* Orange-ish */
-  color: #d35400;
-  border: 1px solid rgba(211, 84, 0, 0.2);
-}
-
-.status-approved {
-  background: rgba(0, 104, 56, 0.08); /* Green */
-  color: #006838;
-  border: 1px solid rgba(0, 104, 56, 0.2);
-}
-
-.status-rejected {
-  background: rgba(192, 57, 43, 0.08); /* Red */
-  color: #c0392b;
-  border: 1px solid rgba(192, 57, 43, 0.2);
+.acc-number {
+  font-size: 13px;
+  color: #334155;
 }
 
 /* ══ PAGINATION LAYOUT ══════════════════════════════════════════════════════ */

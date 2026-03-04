@@ -1,4 +1,3 @@
-
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 
@@ -22,7 +21,23 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./features/teller/teller.component').then(m => m.TellerComponent)
   },
+  { path: 'analyst',
+    canActivate: [authGuard],
+     loadComponent: () => import('./features/analyst/analyst.component').then(m=> m.MerchantAnalystComponent) },
+
+  { path: 'manager',
+    canActivate: [authGuard],
+     loadComponent: () => import('./features/manager/manager.component').then(m=> m.ManagerComponent) },
+  { path: 'pending-linking',
+    canActivate: [authGuard],
+     loadComponent: () => import('./features/linking/pending-linking.component').then(m=> m.PendingLinkingComponent) },
+     { 
+  path: 'devices',
+  canActivate: [authGuard],
+  loadComponent: () => import('./features/devices/devices.component').then(m => m.DevicesComponent) 
+},
   {
+    
     path: '**',
     redirectTo: 'auth/login'
   }

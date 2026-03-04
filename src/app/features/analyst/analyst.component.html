@@ -1,0 +1,231 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <div class="nav-brand">
+      <img src="assets/images/logo.png" alt="AFC Commercial Bank" class="nav-logo-img">
+      <div class="nav-logo-sep"></div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-role-badge">
+      <span class="role-dot"></span>
+      Merchant Analyst
+    </div>
+    <div class="nav-divider"></div>
+  <nav class="nav-links">
+    <a class="nav-link" routerLink="/analyst" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+      Applications
+    </a>
+    <a class="nav-link" routerLink="/pending-linking" routerLinkActive="active">
+      Pending Linking
+    </a>
+    <a class="nav-link" routerLink="/devices" routerLinkActive="active">
+      Devices
+    </a>
+  </nav>
+  </div>
+
+  <div class="navbar-right">
+    <div class="nav-user">
+      <div class="nav-avatar">{{ currentUser()?.initials }}</div>
+      <div class="nav-user-info">
+        <span class="nav-user-name">{{ currentUser()?.name }}</span>
+        <span class="nav-user-email">{{ currentUser()?.email }}</span>
+      </div>
+    </div>
+    <div class="nav-sep"></div>
+    <button class="btn-logout" (click)="onLogout()">
+      <span>Sign Out</span>
+      <span class="logout-icon">→</span>
+    </button>
+  </div>
+</nav>
+
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">POS Applications</h1>
+      <div class="filter-tabs">
+        <button class="filter-tab" [class.active]="activeFilter() === 'PENDING'" (click)="setFilter('PENDING')">
+          <span class="tab-text">Pending</span>
+          @if (activeFilter() === 'PENDING') { <span class="tab-dot"></span> }
+        </button>
+        <button class="filter-tab" [class.active]="activeFilter() === 'ALL'" (click)="setFilter('ALL')">
+          <span class="tab-text">All Requests</span>
+          @if (activeFilter() === 'ALL') { <span class="tab-dot"></span> }
+        </button>
+      </div>
+    </div>
+    <button class="btn-refresh" (click)="loadApplications()" [disabled]="isLoading()">
+      {{ isLoading() ? "Loading…" : "↻ Refresh" }}
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading applications…</p>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-banner">⚠ {{ errorMessage() }}</div>
+  }
+
+  @if (!isLoading() && !errorMessage() && applications().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">✓</div>
+      <p>No applications awaiting actioning</p>
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <div class="app-count" *ngIf="applications().length > 0">
+      Showing {{ (currentPage() - 1) * pageSize + 1 }} –
+      {{ (currentPage() * pageSize) > applications().length ? applications().length : (currentPage() * pageSize) }}
+      of {{ applications().length }} records
+    </div>
+
+    <div class="applications">
+      @for (app of pagedApplications; track $index) {
+        <div class="app-card" [class.expanded]="expandedIndex() === $index">
+
+          <div class="app-card-header" (click)="toggleExpand($index, app.id)">
+            <div class="app-card-left">
+              <div class="trade-name">{{ getUniqueTrades(app) }}</div>
+              <div class="app-meta">
+                <span class="meta-item">📍 {{ getUniqueLocations(app) }}</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">{{ getUniqueCategories(app) }}</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item">{{ app.requests.length }} POS terminal(s)</span>
+              </div>
+            </div>
+            <div class="app-card-right">
+              <span class="status-chip" [class]="getStatusClass(app.approvalStatus)">
+                {{ transformStatus(app.approvalStatus) }}
+              </span>
+              <span class="chevron" [class.open]="expandedIndex() === $index">›</span>
+            </div>
+          </div>
+
+          @if (expandedIndex() === $index) {
+            <div class="app-card-body">
+
+              <!-- Client Information -->
+              <div class="section-label">Client Information</div>
+              <div class="client-details-box">
+                <div class="client-main">
+                  <span class="info-label">Client Name</span>
+                  <div class="client-name">{{ getUniqueAccounts(app)[0]?.accountName || 'N/A' }}</div>
+                </div>
+                <div class="accounts-grid">
+                  <span class="info-label">Linked Accounts</span>
+                  <div class="account-pills">
+                    @for (acc of getUniqueAccounts(app); track acc.id) {
+                      <div class="acc-pill">
+                        <span class="acc-badge" [class]="getCurrencyColor(acc.currency)">{{ acc.currency }}</span>
+                        <span class="acc-number">{{ acc.accountNumber }}</span>
+                        @if (acc.isPrimary) { <span class="primary-tag">Primary</span> }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- POS Terminals -->
+              <div class="section-label" style="margin-top: 24px">POS Terminals Requested</div>
+              <div class="requests-table-wrap">
+                <table class="requests-table">
+                  <thead>
+                    <tr>
+                      <th>#</th><th>Trade Name</th><th>Category</th><th>Location</th><th>MCC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (req of app.requests; track req.id) {
+                      <tr>
+                        <td class="row-num">{{ $index + 1 }}</td>
+                        <td class="td-name">{{ req.tradeName }}</td>
+                        <td><span class="cat-chip">{{ req.category.name }}</span></td>
+                        <td class="td-location">{{ req.location }}</td>
+                        <td class="td-mcc">{{ req.merchantCategoryCode }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Charge Codes — read-only -->
+              <div class="section-label" style="margin-top: 24px">
+                Charge Codes
+                <span class="section-hint">— assigned by teller</span>
+              </div>
+
+              @if (getAllChargeCodes(app).length > 0) {
+                <div class="cc-pills">
+                  @for (code of getAllChargeCodes(app); track code.id) {
+                    <div class="cc-pill">
+                      <span class="pill-code">{{ code.description }}</span>
+                      <span class="currency-chip" [class]="getCurrencyColor(code.currency)">{{ code.currency }}</span>
+                      <span class="pill-pct">{{ code.percentage }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="cc-empty-hint">No charge codes were assigned by the teller.</p>
+              }
+
+              <!-- Remarks -->
+              <div class="section-label" style="margin-top: 24px">
+                Remarks <span class="section-hint">(optional)</span>
+              </div>
+              <textarea
+                class="remarks-input"
+                placeholder="Add any notes..."
+                [ngModel]="getRemarks(app.id) || app.remarks"
+                (ngModelChange)="updateRemarks(app.id, $event)"
+                [readOnly]="isFinalized(app.approvalStatus)"
+                rows="3"
+              ></textarea>
+
+              <div class="action-row">
+                <button
+                  class="btn-action"
+                  (click)="action($index)"
+                  [disabled]="isSubmitting() || isFinalized(app.approvalStatus)">
+                  {{ isSubmitting() ? "Processing…" : "✔ Action Application" }}
+                </button>
+              </div>
+
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination-container">
+        <div class="pagination-wrapper">
+          <div class="nav-button-group">
+            <button class="page-btn-nav" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)">
+              <span class="nav-arrow">←</span> Previous
+            </button>
+            <button class="page-btn-nav" [disabled]="currentPage() === totalPages" (click)="setPage(currentPage() + 1)">
+              Next <span class="nav-arrow">→</span>
+            </button>
+          </div>
+          <div class="page-numbers">
+            @for (p of [].constructor(totalPages); track $index) {
+              <button class="page-num" [class.active]="currentPage() === ($index + 1)" (click)="setPage($index + 1)">
+                {{ $index + 1 }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+</div>
