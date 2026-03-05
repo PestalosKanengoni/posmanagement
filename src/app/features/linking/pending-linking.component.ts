@@ -60,6 +60,7 @@ export class PendingLinkingComponent implements OnInit {
   errorMessage      = signal("");
   linkingTerminalId = signal<string | null>(null);
   expandedMerchantId = signal<string | null>(null);
+  searchQuery = signal("");
 
   // ── Form maps ─────────────────────────────────────────────────
   linkFormMap  = signal<Map<string, LinkFormState>>(new Map());
@@ -93,7 +94,14 @@ export class PendingLinkingComponent implements OnInit {
       next: (res: any) => {
         this.isLoading.set(false);
         if (res.responseCode === "000") {
-          this.merchants.set(res.data);
+          const seen = new Set<string>();
+    const unique = (res.data as PendingMerchant[]).filter(m => {
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
+    this.merchants.set(unique);
+          // this.merchants.set(res.data);
         } else {
           this.errorMessage.set(res.responseDescription || "Failed to load merchants");
         }
@@ -104,6 +112,11 @@ export class PendingLinkingComponent implements OnInit {
       }
     });
   }
+
+  setSearch(value: string): void {
+  this.searchQuery.set(value);
+  this.currentPage.set(1); // reset to page 1 on search
+}
 
   loadDeviceLists(): void {
     this.isLoadingDevices.set(true);
@@ -124,14 +137,23 @@ export class PendingLinkingComponent implements OnInit {
     });
   }
 
+  get filteredMerchants(): PendingMerchant[] {
+  const q = this.searchQuery().toLowerCase().trim();
+  if (!q) return this.merchants();
+  return this.merchants().filter(m =>
+    m.name.toLowerCase().includes(q) ||
+    m.location.toLowerCase().includes(q)
+  );
+}
+
   // ── Pagination ────────────────────────────────────────────────
   get pagedMerchants(): PendingMerchant[] {
     const start = (this.currentPage() - 1) * this.pageSize;
-    return this.merchants().slice(start, start + this.pageSize);
+    return this.filteredMerchants.slice(start, start + this.pageSize);
   }
 
   get totalPages(): number {
-    return Math.ceil(this.merchants().length / this.pageSize);
+    return Math.ceil(this.filteredMerchants.length / this.pageSize);
   }
 
   setPage(page: number): void {
@@ -270,6 +292,16 @@ export class PendingLinkingComponent implements OnInit {
         const linked = new Set(this.linkedIds());
         linked.add(terminalId);
         this.linkedIds.set(linked);
+
+        // ← Mark the terminal as linked in the merchant data
+this.merchants.update(list =>
+  list.map(m => ({
+    ...m,
+    terminals: m.terminals.map(t =>
+      t.id === terminalId ? { ...t, pos: { linked: true } } : t
+    )
+  }))
+);
       },
       error: (err: any) => {
         this.isSubmitting.set(false);
@@ -282,7 +314,16 @@ export class PendingLinkingComponent implements OnInit {
 
   // ── Helpers ───────────────────────────────────────────────────
   isLinked(terminalId: string): boolean {
-    return this.linkedIds().has(terminalId);
+    // Check session-linked first
+  if (this.linkedIds().has(terminalId)) return true;
+
+  // Check if already linked on the server (pos field is populated)
+  const terminal = this.merchants()
+    .flatMap(m => m.terminals)
+    .find(t => t.id === terminalId);
+
+  return !!terminal?.pos;
+    // return this.linkedIds().has(terminalId);
   }
 
   getTotalTerminals(): number {

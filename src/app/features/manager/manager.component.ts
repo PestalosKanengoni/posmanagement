@@ -42,6 +42,7 @@ export class ManagerComponent implements OnInit {
   activeFilter = signal<'PENDING' | 'ALL'>('PENDING');
   pageSize = 4;
   currentPage = signal(1);
+  searchQuery = signal("");
 
   constructor(
     private managerService: ManagerService,
@@ -122,11 +123,39 @@ transformStatus(status: string): string {
 
   get pagedApplications(): PosApplication[] {
   const startIndex = (this.currentPage() - 1) * this.pageSize;
-  return this.applications().slice(startIndex, startIndex + this.pageSize);
+  return this.filteredApplications.slice(startIndex, startIndex + this.pageSize);
+}
+
+setSearch(value: string): void {
+  this.searchQuery.set(value);
+  this.currentPage.set(1);
+}
+
+get filteredApplications(): PosApplication[] {
+  const q = this.searchQuery().toLowerCase().trim();
+  if (!q) return this.applications();
+  return this.applications().filter(app =>
+    this.getUniqueTrades(app).toLowerCase().includes(q) ||
+    this.getUniqueLocations(app).toLowerCase().includes(q)
+  );
 }
 
 get totalPages(): number {
-  return Math.ceil(this.applications().length / this.pageSize);
+  return Math.ceil(this.filteredApplications.length / this.pageSize);
+}
+
+getPageNumbers(): number[] {
+  const total = this.totalPages;
+  const current = this.currentPage();
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: number[] = [1];
+  if (current > 3) pages.push(-1);
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (current < total - 2) pages.push(-1);
+  pages.push(total);
+  return pages;
 }
 
 // ── Logic ─────────────────────────────────────────────────────
@@ -140,6 +169,7 @@ setPage(page: number): void {
 
   setFilter(filter: 'PENDING' | 'ALL'): void {
   this.activeFilter.set(filter);
+  this.searchQuery.set('');
   this.loadApplications();
 }
 

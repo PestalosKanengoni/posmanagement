@@ -54,9 +54,24 @@
   </button>
 </div>
     </div>
+    <div class="header-actions">
     <button class="btn-refresh" (click)="loadApplications()" [disabled]="isLoading()">
       {{ isLoading() ? "Loading…" : "↻ Refresh" }}
     </button>
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Search by trade name or location…"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="setSearch($event)"
+      />
+      @if (searchQuery()) {
+        <button class="search-clear" (click)="setSearch('')">✕</button>
+      }
+    </div>
+  </div>
   </div>
  
 
@@ -76,23 +91,26 @@
   }
 
   <!-- Empty -->
-  @if (!isLoading() && !errorMessage() && applications().length === 0) {
+  @if (!isLoading() && !errorMessage() && filteredApplications.length === 0) {
     <div class="empty-state">
-      <div class="empty-icon">✓</div>
-      <p>No applications awaiting your approval</p>
-    </div>
+      <div class="empty-icon">{{ searchQuery() ? '🔍' : '✓' }}</div>
+    <p>{{ searchQuery() ? 'No applications match "' + searchQuery() + '"' : 'No applications awaiting your approval' }}</p>
+    @if (searchQuery()) {
+      <button class="btn-clear-search" (click)="setSearch('')">Clear search</button>
+    }
+  </div>
   }
 
   <!-- Applications list -->
-  @if (!isLoading()) {
-    <div class="app-count" *ngIf="applications().length > 0">
-      <div class="app-count">
-      Showing {{ (currentPage() - 1) * pageSize + 1 }} - 
-      {{ (currentPage() * pageSize) > applications().length ? applications().length : (currentPage() * pageSize) }} 
-      of {{ applications().length }} records
-    </div>
-      <!-- {{ applications().length }} application(s) pending -->
-    </div>
+  @if (!isLoading() && filteredApplications.length > 0 ) {
+    <div class="app-count">
+    Showing {{ (currentPage() - 1) * pageSize + 1 }} –
+    {{ (currentPage() * pageSize) > filteredApplications.length ? filteredApplications.length : (currentPage() * pageSize) }}
+    of {{ filteredApplications.length }} records
+    @if (searchQuery()) {
+      <span class="search-tag">· filtered by "{{ searchQuery() }}"</span>
+    }
+  </div>
 
     <div class="applications">
       @for (app of pagedApplications; track $index) {
@@ -250,14 +268,13 @@
       </div>
 
       <div class="page-numbers">
-        @for (p of [].constructor(totalPages); track $index) {
-          <button 
-            class="page-num" 
-            [class.active]="currentPage() === ($index + 1)"
-            (click)="setPage($index + 1)">
-            {{ $index + 1 }}
-          </button>
-        }
+       @for (p of getPageNumbers(); track p) {
+            @if (p === -1) {
+              <span class="page-ellipsis">…</span>
+            } @else {
+              <button class="page-num" [class.active]="currentPage() === p" (click)="setPage(p)">{{ p }}</button>
+            }
+          }
       </div>
     </div>
   </div>

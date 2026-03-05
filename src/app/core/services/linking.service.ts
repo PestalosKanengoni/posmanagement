@@ -72,9 +72,6 @@ export class LinkingService {
     );
   }
 
-
-
-
   getPendingLinking(): Observable<any> {
     const url = `${this.base}/posman/application/merchants/pending-linking`;
     return this.http.get(url, { headers: this.getHeaders() }).pipe(
