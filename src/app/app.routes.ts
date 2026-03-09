@@ -1,5 +1,6 @@
-import { Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { NgModule } from '@angular/core';
 
 export const routes: Routes = [
   {
@@ -42,3 +43,9 @@ export const routes: Routes = [
     redirectTo: 'auth/login'
   }
 ];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
